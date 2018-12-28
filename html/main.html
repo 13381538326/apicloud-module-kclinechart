@@ -1,0 +1,148 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+    <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+    <title>Hello APP</title>
+    <link rel="stylesheet" type="text/css" href="../css/box.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <style>
+        label {
+            margin: 10px;
+            font-size: 24px;
+        }
+
+        ul {
+            margin-bottom: 10px;
+        }
+
+        ul li {
+            margin: 5px 10px;
+            padding: 5px;
+            color: #000;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wrap">
+        <div style="width:100%;">
+            <textarea id="data" style="width:100%; height:100px;">data</textarea>
+        </div>
+
+        <div id="chart" style="width:100%; height:300px;">
+        </div>
+
+        <div id="main">
+            <div class="clickbtn" tapmode="active" onclick="openKLine()">创建K线视图</div>
+            <div class="clickbtn" tapmode="active" onclick="addFooterData()">添加数据</div>
+            <div class="clickbtn" tapmode="active" onclick="loadComplete()">结束当前加载</div>
+            <div class="clickbtn" tapmode="active" onclick="loadEnd()">结束加载</div>
+        </div>
+
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+    var klineChart = null
+    apiready = function() {
+        klineChart = api.require('kLineChart');
+    }
+
+    function openKLine() {
+        params = {
+            x: 0,
+            y: 100,
+            w: 0,
+            h: 300,
+            fixedOn: 'main',
+            fixed: true,
+            // style: {
+            //     chart: {
+            //         backgroundColor: '#ffffff', //字符串 背景色(注意所有颜色必须为16进制，不能使用简写)
+            //         candleLineWidth: 1, //数值 蜡烛线宽度 默认 1
+            //         candleSolid: true, //布尔 蜡烛是否是实心 默认 true
+            //         candleWidth: 4, //数值 蜡烛图的宽度 默认 4
+            //     },
+            //     grid: {
+            //         gridLineWidth: 1, //数值 网格线的宽度 默认 1
+            //         gridRows: 2, //数值 网格横线的条数 默认 2
+            //     },
+            //     selector: {
+            //         selectorBackgroundColor: '#c830343C', //字符串 选择器的颜色 默认#c830343C
+            //         selectedLineColor: '#000000', //字符串 十字线的颜色 默认 无
+            //         selectedLineWidth: 1 //数值 十字线的宽度 默认 1
+            //     },
+            //     tab: {
+            //         stabBackgroundColor: '#000000', //字符串 tab的背景色 默认 #000000
+            //         tabTextColor: '#DDDDDD', //字符串 标签文字颜色 默认  #DDDDDD
+            //         tabTextSelectedColor: '#646464' //字符串 被选中标签文字颜色 默认  #646464
+            //     },
+            //     ma: {
+            //         ma5Color: '#18CCF6', //字符串 ma5线的颜色  默认 #18CCF6
+            //         ma20Color: '#E7A520' //字符串 ma20线的颜色  默认 #E7A520
+            //     },
+            //     macd: {
+            //         macdWidth: 1, //数值 macd线宽 默认 1
+            //         difColor: '#18CCF6', //字符串 DIF指标颜色 默认 #18CCF6
+            //         deaColor: '#FE5EDF', //字符串 DEA指标颜色 默认 #FE5EDF
+            //         macdColor: '#E7A520', //字符串 MACD指标颜色 默认 #E7A520
+            //     },
+            //     rsi: {
+            //         rsi1Color: '#18CCF6', //字符串 RSI1指标颜色 默认 #18CCF6
+            //         rsi2Color: '#FE5EDF', //字符串 RSI1指标颜色 默认 #FE5EDF
+            //         rsi3Color: '#E7A520', //字符串 RSI1指标颜色 默认 #E7A520
+            //     },
+            //     boll: {
+            //         upColor: '#18CCF6', //字符串 UP指标颜色 默认 #18CCF6
+            //         mbColor: '#FE5EDF', //字符串 MB指标颜色 默认 #FE5EDF
+            //         dnColor: '#E7A520', //字符串 DN指标颜色 默认 #E7A520
+            //     }
+            // }
+        }
+        klineChart.createView(params, function(res, err) {
+            console.log(res);
+            if (res.event == 'loadMore') {
+                api.alert({
+                    msg: '触发加载事件'
+                });
+            }
+            if (res.event == 'select') {
+                $api.html($api.byId('data'), JSON.stringify(res.data))
+            }
+
+        })
+    }
+
+    function addFooterData() {
+        api.ajax({
+            url: 'http://47.98.247.192/data2.json'
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret));
+            if (ret) {
+                klineChart.addFooterData({
+                    data: ret
+                })
+                klineChart.loadComplete()
+            } else {
+                api.alert({
+                    msg: JSON.stringify(err)
+                });
+            };
+        });
+    }
+
+
+    function loadEnd() {
+        klineChart.loadEnd()
+    }
+
+    function loadComplete() {
+        klineChart.loadComplete()
+    }
+</script>
+
+</html>
